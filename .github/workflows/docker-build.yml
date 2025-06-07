@@ -1,4 +1,4 @@
-name: Build Docker Image on Code Change
+name: Build and Push Docker Image on Code Change
 
 on:
   push:
@@ -13,15 +13,14 @@ jobs:
       - name: 🛒 Checkout code
         uses: actions/checkout@v3
 
-      - name: 🐳 Set up Docker
+      - name: 🐳 Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
+      - name: 🔐 Login to Docker Hub
+        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+
       - name: 🧱 Build Docker image
-        run: docker build -t animelist .
+        run: docker build -t ${{ secrets.DOCKER_USERNAME }}/animelist:latest .
 
-      # Optional - Push to DockerHub
-      # - name: 🔐 Login to DockerHub
-      #   run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
-
-      # - name: 📤 Push Docker image
-      #   run: docker tag my-nextjs-app ${{ secrets.DOCKER_USERNAME }}/my-nextjs-app:latest && docker push ${{ secrets.DOCKER_USERNAME }}/my-nextjs-app:latest
+      - name: 📤 Push Docker image
+        run: docker push ${{ secrets.DOCKER_USERNAME }}/animelist:latest
